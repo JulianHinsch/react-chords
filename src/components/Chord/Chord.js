@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Howl } from 'howler';
-import styles from './Chord.module.scss';
-import Tone from '../Tone/Tone';
 
-const tones = [
+import Note from '../Note/Note';
+
+import styles from './Chord.module.scss';
+
+const Keys = [
     'C1',
     'C#1',
     'D1',
@@ -35,39 +36,25 @@ const tones = [
 export default class Chord extends Component {
 
     static propTypes = {
+        index: PropTypes.number.isRequired,
+        notes: PropTypes.object.isRequired,
         playChord: PropTypes.func.isRequired,
-    }
-
-    //stores howl for each tone
-    state = {}
-
-    toggleTone = (tone) => {
-        if(Boolean(this.state[tone])) {
-            this.setState({[tone]: undefined});
-        } else {
-            const sound = new Howl({
-                src: [`/assets/synth/${tone.replace('#','_')}.mp3`],
-                html5: true,
-                autoplay: true,
-                loop: false,
-            });
-            this.setState({ [tone]: sound });
-        }
+        toggleNote: PropTypes.func.isRequired,
     }
 
     render() {
-        const { playChord } = this.props;
+        const { index, playChord, notes, toggleNote } = this.props;
         return (
             <div className={styles.chord}>
-                {tones.map(( tone, renderKey = 0 ) => (
-                    <Tone
-                        tone={tone}
-                        isSelected = {Boolean(this.state[tone])}
-                        toggle={this.toggleTone} 
-                        key={renderKey++}/>
+                {Keys.map(key => (
+                    <Note
+                        note={key}
+                        isSelected = {Boolean(notes.get(key))}
+                        toggleNote={toggleNote(index)} 
+                        key={key}/>
                     )
                 )}
-                <button onClick={() => playChord(this.state)}>Play</button>
+                <button onClick={() => playChord(notes)}>Play</button>
             </div>
         )
     }
